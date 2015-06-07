@@ -1,7 +1,7 @@
 % nTest = size(XTest, 1);
 
-% X = XTrain;
-% y = yTrain;
+X = XTrain;
+y = yTrain;
 
 % m = mean(XTrain);
 % s = std(XTrain);
@@ -11,13 +11,13 @@
 % y = yTrain;
 % W = [bsxfun(@rdivide, bsxfun(@minus, W, m), s)];
 
-% [nTrain,f] = size(XTrain);
-% 
-% intervals = 1 : floor(nTrain/10) : nTrain;
-% intervals(size(intervals, 2)) = nTrain;
-% perm = randperm(nTrain);
-% 
-% results = zeros(1, size(intervals, 2));
+[nTrain,f] = size(XTrain);
+
+intervals = 1 : floor(nTrain/10) : nTrain;
+intervals(size(intervals, 2)) = nTrain;
+perm = randperm(nTrain);
+
+results = zeros(1, size(intervals, 2));
 % 
 % L = 0;
 % z = zeros(nTrain, 1);
