@@ -1,0 +1,4 @@
+Naive bayes density estimation
+rbf(2): 2.1972
+rbf(1) 2.1972
+rbf(0.5) 2.1972

@@ -12,7 +12,8 @@ function K = kernel(XTrain, XTest, bw, kernel_type)
     if strcmp(kernel_type,'rbf')
         %% begin
         for i = 1:nTest
-           K(:,i) = (2*pi)^(-f/2) * bw^(-f) * exp(- 0.5 * sum(((XTrain - repmat(XTest(i,:), nTrain, 1))/bw).^2, 2))';
+           % K(:,i) = (2*pi)^(-f/2) * bw^(-f) * exp(- 0.5 * sum(((XTrain - repmat(XTest(i,:), nTrain, 1))/bw).^2, 2))';
+           K(:,i) = -f * (0.5 * log(2 * pi) + log(bw)) - 0.5 * sum(((XTrain - repmat(XTest(i,:), nTrain, 1))/bw).^2, 2)';
         end
         %% end
     elseif strcmp(kernel_type,'boxcar')
