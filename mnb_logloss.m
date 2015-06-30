@@ -1,69 +1,38 @@
-lr = 0.1;
-nIter = 100;
+function z = mnb_logloss(XTrain, yTrain, XTest)
+    lr = 10;
+    nIter = 20;
 
-[nTrain,f] = size(XTrain);
-class = unique(yTrain);
-nClass = size(class, 1);
+    [nTrain,f] = size(XTrain);
+    nTest = size(XTest, 1);
+    class = unique(yTrain);
+    nClass = size(class, 1);
 
-X = [ones(nTrain, 1) XTrain];
-y = yTrain;
+    % preprocessing
+    X = XTrain;
+    W = XTest;
+    % X = bsxfun(@rdivide, bsxfun(@minus, XTrain, mean(XTrain)), std(XTrain));
+    % X = bsxfun(@minus, XTrain, mean(XTrain));
+    % X = bsxfun(@rdivide, XTrain, sum(XTrain, 2));
+    % W = bsxfun(@rdivide, XTest, sum(XTest, 2));
+    y = yTrain;
 
-[nTrain,f] = size(X);
-class = unique(y);
-nClass = size(class, 1);
-
-intervals = 1 : floor(nTrain/10) : nTrain;
-intervals(size(intervals, 2)) = nTrain;
-perm = randperm(nTrain);
-
-L = 0;
-N = 0;
-z = zeros(nTrain, nClass);
-for i = 1:size(intervals, 2)-9
-    idx2 = perm(intervals(i):intervals(i+1));
-    idx1 = setdiff(1:nTrain, idx2);
+    tX = [ones(nTrain, 1) X];
+    tW = [ones(nTest, 1) W];
     
-    XX = X(idx1, :);
-    yy = y(idx1, :);
-    WW = X(idx2, :);
+    X = zeros(nTrain, (f+1)^2);
+    W = zeros(nTest, (f+1)^2);
     
-    n = size(XX, 1);
-    m = size(WW, 1);
-
-    W = zeros(f, nClass);
-    grad = zeros(f, nClass);
-    
-    for iter = 1:nIter
-        p = XX * W;
-        p = exp(bsxfun(@minus, p, max(p, [], 2)));
-        p = bsxfun(@rdivide, p, sum(p, 2));
-        
-%         S = 0;
-%         for d = 1:n
-%             S = S - log(p(d, yy(d)));
-%         end
-%         S/n
-        
-        for c = 1:nClass
-            grad(:, c) = sum(bsxfun(@times, XX, p(:,c) - (yy == c))) / n; 
+    for i=1:f+1
+        for j=1:f+1
+            X(:,(f+1)*i+j) = tX(:,i) .* tX(:,j);
+            W(:,(f+1)*i+j) = tW(:,i) .* tW(:,j);
         end
-        W = W - lr * grad;
     end
+    y = y;
     
-    S = 0;
-    for d = 1:n
-        S = S - log(p(d, yy(d)));
-    end
-    S/n
+    coef = mnb_logloss_train(X, y, lr, nIter);
     
-    p = WW * W;
+    p = W * coef;
     p = exp(bsxfun(@minus, p, max(p, [], 2)));
-    z(idx2, :) = bsxfun(@rdivide, p, sum(p, 2));
-
-    for d = idx2
-        L = L - log(z(d, y(d)));
-    end
-    N = N + m;
+    z = bsxfun(@rdivide, p, sum(p, 2));
 end
-
-L = L/N;
